@@ -9,14 +9,14 @@
 
 struct MemoryPool
 {
-	void* memory;
+	//void* memory;
 	size_t size;
-	unsigned int lastPosition;
+	unsigned int allocated;
 
 	MemoryPool(size_t s)
 	{
 		size = s;
-		memory = new void[size];
+		//memory = new void[size];
 	}
 };
 
@@ -42,7 +42,7 @@ namespace MemoryManager
 	// Memory pool
 	//-------------------------------------------------------------------------
 
-	MemoryPool* AllocateMemoryPool(size_t size = POOL_SIZE)
+	MemoryPool* CreateMemoryPool(size_t size = POOL_SIZE)
 	{
 		MemoryPool* pool = new MemoryPool(size);
 		return pool;
@@ -53,12 +53,19 @@ namespace MemoryManager
 		delete pool;
 	}
 
-	/*
-	void* PoolPush(MemoryPool* pool, size_t size)
+	template<class T>
+	void* Alloc(MemoryPool* pool)
 	{
+		void* start = pool + pool->allocated;
+		pool->allocated += sizeof(T);
 
+		return start;
 	}
-	*/
+
+	void Clear(MemoryPool* pool)
+	{
+		pool->allocated = 0;
+	}
 }
 
 //-------------------------------------------------------------------------

@@ -14,10 +14,16 @@
 int main(int argc, const char** argv)
 {
 	Game::SpaceGameApp app;
+
+	MemoryPool* pool = MemoryManager::CreateMemoryPool();
+
 	if (app.Open())
 	{
+		int* val = (int*)MemoryManager::Alloc<int>(pool);
+		std::cout << "Val address: " << val << "\n";
+
 		app.Run();
-		app.Close();
+		app.Close(); 
 	}
 	app.Exit();
 	
