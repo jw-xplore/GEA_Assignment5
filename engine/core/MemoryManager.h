@@ -7,23 +7,32 @@
 // Base memory manager
 //-------------------------------------------------------------------------
 
+const size_t POOL_SIZE = 65536;
+
 struct MemoryPool
 {
-	//void* memory;
+	char* buffer;
 	size_t size;
 	unsigned int allocated;
 
-	MemoryPool(size_t s)
+	MemoryPool* prevPool = nullptr;
+	MemoryPool* nextPool = nullptr;
+
+	MemoryPool(size_t s = POOL_SIZE)
 	{
+		buffer = new char[s];
 		size = s;
-		//memory = new void[size];
+		allocated = 0;
+	}
+	
+	~MemoryPool()
+	{
+		delete nextPool;
 	}
 };
 
 namespace MemoryManager
 {
-	const size_t POOL_SIZE = 65536;
-
 	unsigned int objectsCount;
 	unsigned int allocatedMemoryForObjects;
 	unsigned int arraysCount;
@@ -42,29 +51,64 @@ namespace MemoryManager
 	// Memory pool
 	//-------------------------------------------------------------------------
 
-	MemoryPool* CreateMemoryPool(size_t size = POOL_SIZE)
-	{
-		MemoryPool* pool = new MemoryPool(size);
-		return pool;
-	}
-
-	void FreeMemoryPool(MemoryPool* pool)
-	{
-		delete pool;
-	}
-
 	template<class T>
-	void* Alloc(MemoryPool* pool)
+	void* Alloc(MemoryPool& pool, unsigned int count = 1)
 	{
-		void* start = pool + pool->allocated;
-		pool->allocated += sizeof(T);
+		size_t size = sizeof(T);
 
+		// Check size out of bounce
+		if (sizeof(T) > pool.size)
+		{
+			throw std::invalid_argument("Object is larger than pool size");
+			return nullptr;
+		}
+
+		// Check allignment
+		size_t alignment = alignof(T);
+		int allignmentOverflow = pool.allocated % alignment;
+		if (allignmentOverflow != 0)
+		{
+			allignmentOverflow = size - allignmentOverflow;
+			pool.allocated += allignmentOverflow;
+		}
+
+		void* start = &pool + pool.allocated;
+
+		// Check element out of bounce
+		int endPos = pool.allocated + size * count;
+
+		if (endPos > pool.size)
+		{
+			if (pool.nextPool == nullptr)
+			{
+				// Create next pool
+				pool.nextPool = new MemoryPool(pool.size);
+				pool.nextPool->prevPool = &pool;
+				start = &pool;
+			}
+			
+			// Get next free pool
+			return Alloc<T>(*pool.nextPool, count);
+		}
+		
+		pool.allocated += sizeof(T);
 		return start;
 	}
 
-	void Clear(MemoryPool* pool)
+	void FreeMemoryPool(MemoryPool& pool)
 	{
-		pool->allocated = 0;
+		pool.allocated = 0;
+
+		if (pool.nextPool != nullptr)
+			FreeMemoryPool(*pool.nextPool);
+	}
+
+	void ResetMemoryPool(MemoryPool& pool)
+	{
+		pool.allocated = 0;
+
+		if (pool.nextPool != nullptr)
+			delete pool.nextPool;
 	}
 }
 
