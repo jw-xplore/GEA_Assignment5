@@ -2,6 +2,8 @@
 
 #include <memory>
 #include <iostream>
+#include <mutex>
+#include <thread>
 
 //-------------------------------------------------------------------------
 // Base memory manager
@@ -9,25 +11,95 @@
 
 const size_t POOL_SIZE = 65536;
 
-struct MemoryPool
+class Arena
 {
+private:
 	char* buffer;
 	size_t size;
 	unsigned int allocated;
 
-	MemoryPool* prevPool = nullptr;
-	MemoryPool* nextPool = nullptr;
+	Arena* prevArena = nullptr;
+	Arena* nextArena = nullptr;
+public:
 
-	MemoryPool(size_t s = POOL_SIZE)
+	Arena(size_t s = POOL_SIZE)
 	{
 		buffer = new char[s];
 		size = s;
 		allocated = 0;
+
+		std::cout << "Buffer: " << &buffer << "\n";
+		std::cout << "This: " << this << "\n";
+		std::cout << "-------------------------------------\n";
 	}
 	
-	~MemoryPool()
+	~Arena()
 	{
-		delete nextPool;
+		delete nextArena;
+	}
+
+	template<class T>
+	void* Alloc(unsigned int count = 1)
+	{
+		// Check element size out of bounce
+		size_t elSize = sizeof(T);
+		size_t completeSize = elSize * count;
+
+		if (completeSize > this->size)
+		{
+			throw std::invalid_argument("Memory block is larger than arena size");
+			return nullptr;
+		}
+
+		// Check element allignment
+		size_t alignment = alignof(T);
+		int allignmentOverflow = allocated % alignment;
+
+		if (allignmentOverflow != 0)
+		{
+			allignmentOverflow = size - allignmentOverflow;
+			allocated += allignmentOverflow;
+		}
+
+		// Check element out of bounce
+		int endPos = allocated + elSize * count;
+		void* start = this + allocated;
+
+		if (endPos > this->size)
+		{
+			if (nextArena == nullptr)
+			{
+				// Create next pool
+				nextArena = new Arena(this->size);
+				nextArena->prevArena = this;
+				start = this;
+			}
+
+			// Get next free pool
+			return nextArena->Alloc<T>(count);
+		}
+
+		allocated += elSize;
+		return start;
+	}
+
+	void Reset(bool removeLinks = true)
+	{
+		allocated = 0;
+
+		if (removeLinks)
+		{
+			// Delete all linked arenas
+			if (nextArena != nullptr)
+				delete nextArena;
+
+			nextArena = nullptr;
+			return;
+		}
+
+		// Keep linked arenas and restert their position
+		if (nextArena != nullptr)
+			nextArena->Reset(removeLinks);
 	}
 };
 
@@ -46,78 +118,18 @@ namespace MemoryManager
 		std::cout << "Allocated arrays: " << arraysCount << ", size: " << allocatedMemoryForArrays << "\n";
 		std::cout << "----------------------------------------------------" << "\n";
 	}
-
-	//-------------------------------------------------------------------------
-	// Memory pool
-	//-------------------------------------------------------------------------
-
-	template<class T>
-	void* Alloc(MemoryPool& pool, unsigned int count = 1)
-	{
-		size_t size = sizeof(T);
-
-		// Check size out of bounce
-		if (sizeof(T) > pool.size)
-		{
-			throw std::invalid_argument("Object is larger than pool size");
-			return nullptr;
-		}
-
-		// Check allignment
-		size_t alignment = alignof(T);
-		int allignmentOverflow = pool.allocated % alignment;
-		if (allignmentOverflow != 0)
-		{
-			allignmentOverflow = size - allignmentOverflow;
-			pool.allocated += allignmentOverflow;
-		}
-
-		void* start = &pool + pool.allocated;
-
-		// Check element out of bounce
-		int endPos = pool.allocated + size * count;
-
-		if (endPos > pool.size)
-		{
-			if (pool.nextPool == nullptr)
-			{
-				// Create next pool
-				pool.nextPool = new MemoryPool(pool.size);
-				pool.nextPool->prevPool = &pool;
-				start = &pool;
-			}
-			
-			// Get next free pool
-			return Alloc<T>(*pool.nextPool, count);
-		}
-		
-		pool.allocated += sizeof(T);
-		return start;
-	}
-
-	void FreeMemoryPool(MemoryPool& pool)
-	{
-		pool.allocated = 0;
-
-		if (pool.nextPool != nullptr)
-			FreeMemoryPool(*pool.nextPool);
-	}
-
-	void ResetMemoryPool(MemoryPool& pool)
-	{
-		pool.allocated = 0;
-
-		if (pool.nextPool != nullptr)
-			delete pool.nextPool;
-	}
 }
 
 //-------------------------------------------------------------------------
 // Tracking memory override
 //-------------------------------------------------------------------------
 
+std::mutex allocMtx;
+
 void* operator new(std::size_t size)
 {
+	std::unique_lock<std::mutex> allocLock(allocMtx);
+
 	if (void* p = std::malloc(size))
 	{
 		MemoryManager::objectsCount++;
@@ -126,6 +138,8 @@ void* operator new(std::size_t size)
 	}
 
 	throw std::bad_alloc{};
+
+	allocLock.unlock();
 }
 
 void operator delete(void* p) noexcept
@@ -137,6 +151,8 @@ void operator delete(void* p) noexcept
 
 void* operator new[](std::size_t size) throw(std::bad_alloc)
 {
+	std::unique_lock<std::mutex> allocLock(allocMtx);
+
 	if (void* p = std::malloc(size))
 	{
 		MemoryManager::arraysCount++;
@@ -145,6 +161,8 @@ void* operator new[](std::size_t size) throw(std::bad_alloc)
 	}
 
 	throw std::bad_alloc{};
+
+	allocLock.unlock();
 }
 void operator delete[](void* p) throw()
 {
