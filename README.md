@@ -10,3 +10,5 @@ Pull requests are welcome!
 
 * CMake
 * Compiler (tested on MSVC, GCC)
+
+## Task 2 notes
