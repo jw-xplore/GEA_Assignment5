@@ -13,6 +13,7 @@ SET(files_core
 	cvar.cc
 	idpool.h
 	MemoryManager.h
+	Entity.h
 	)
 SOURCE_GROUP("core" FILES ${files_core})
 	
