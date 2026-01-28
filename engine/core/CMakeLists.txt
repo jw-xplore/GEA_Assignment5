@@ -14,6 +14,10 @@ SET(files_core
 	idpool.h
 	MemoryManager.h
 	Entity.h
+	ComponentBase.h
+	ECManager.h
+	ECManager.cpp
+	EComponents.h
 	)
 SOURCE_GROUP("core" FILES ${files_core})
 	

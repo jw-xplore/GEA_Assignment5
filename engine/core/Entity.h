@@ -2,15 +2,19 @@
 #include <vector>
 #include <initializer_list>
 
+struct EntityId
+{
+	unsigned int id = 0;
+};
+
 class Entity
 {
 private:
-	unsigned int id = -1;
-	int a
+	EntityId id;
 
 public:
-	std::vector<unsigned int> components;
+	//std::vector<ComponentBase*> components;
 
-	Entity(unsigned int id, std::initializer_list<unsigned int> comps);
+	Entity(EntityId id, std::initializer_list<unsigned int> comps);
 	~Entity();
 };
