@@ -1,5 +1,6 @@
 #pragma once
 #include "render/model.h"
+#include "core/Entity.h"
 
 namespace Render
 {
@@ -9,8 +10,9 @@ namespace Render
 namespace Game
 {
 
-struct SpaceShip
+class SpaceShip
 {
+public:
     SpaceShip();
     
     glm::vec3 position = glm::vec3(0);

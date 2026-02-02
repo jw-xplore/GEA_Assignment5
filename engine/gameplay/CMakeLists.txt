@@ -9,6 +9,8 @@ SET(files_gameplay
 	CameraCmp.cpp
 	RigidbodyCmp.h
 	RigidbodyCmp.cpp
+	ColliderCmp.h
+	ColliderCmp.cpp
 	)
 
 SOURCE_GROUP("gameplay" FILES ${files_gameplay})

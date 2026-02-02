@@ -12,12 +12,9 @@ private:
 
 public:
 	std::vector<Entity> entities;
-	std::vector<std::vector<ComponentBase>> components;
-
-	
 
 	ECManager();
 	~ECManager();
 
-	void AddEntity(std::initializer_list<unsigned int> comps);
+	void Update(float dt);
 };

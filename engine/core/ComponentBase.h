@@ -1,6 +1,5 @@
 #pragma once
-
-class Entity;
+#include "Entity.h"
 
 class ComponentBase
 {
@@ -11,5 +10,5 @@ public:
 	virtual ~ComponentBase() {}
 
 	virtual void Start() {}
-	virtual void Update() {}
+	virtual void Update(float dt) {}
 };

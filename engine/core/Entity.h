@@ -17,6 +17,22 @@ private:
 public:
 	std::vector<ComponentBase*> components;
 
-	Entity(EntityId id, std::initializer_list<unsigned int> comps);
+	Entity(EntityId id);
 	~Entity();
+
+	virtual void Update(float dt) {}
+
+	template<class T>
+	T* FindComponent()
+	{
+		size_t size = components.size();
+		for (auto& component : components)
+		{
+			T* target = dynamic_cast<T*>(component);
+			if (target)
+				return target;
+		}
+
+		return nullptr;
+	}
 };
