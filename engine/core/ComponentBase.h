@@ -1,14 +1,15 @@
 #pragma once
 
+class Entity;
+
 class ComponentBase
 {
 public:
-	//Entity* entity;
+	Entity* owner;
 
 	ComponentBase() {}
 	virtual ~ComponentBase() {}
 
-	virtual unsigned int Id() { return 0; }
 	virtual void Start() {}
 	virtual void Update() {}
 };
