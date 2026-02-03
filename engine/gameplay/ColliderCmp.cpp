@@ -4,16 +4,14 @@
 
 void ColliderCmp::Start()
 {
-    TransformCmp* transform = owner->FindComponent<TransformCmp>();
-    if (transform)
-        orientation = transform->orientation;
+    transform = owner->FindComponent<TransformCmp>();
 }
 
 void ColliderCmp::Update(float dt)
 {
+    glm::mat4 rotation = (glm::mat4)transform->orientation;
+    
     /*
-    glm::mat4 rotation = (glm::mat4)orientation;
-    bool hit = false;
     for (int i = 0; i < sizeof(colliderEndPoints) / sizeof(glm::vec3); i++)
     {
         glm::vec3 pos = position;
@@ -27,9 +25,17 @@ void ColliderCmp::Update(float dt)
         if (payload.hit)
         {
             Debug::DrawDebugText("HIT", payload.hitPoint, glm::vec4(1, 1, 1, 1));
-            hit = true;
         }
     }
-    return hit;
     */
+}
+
+void ColliderCmp::SetCollider(Physics::ColliderId* id)
+{
+
+}
+
+void ColliderCmp::SetCollider(std::vector<glm::vec3> endPoints, glm::vec3 center)
+{
+
 }

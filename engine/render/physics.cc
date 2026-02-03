@@ -101,6 +101,7 @@ LoadFromIndexBuffer(fx::gltf::Document const& doc, ColliderMesh* mesh)
     mesh->bSphereRadius = std::max(mesh->bSphereRadius, std::fabs(vbAccessor.min[2]));
 }
 
+const std::string UNIQUE_COLLIDER = "unique";
 
 //------------------------------------------------------------------------------
 /**
@@ -110,6 +111,7 @@ LoadColliderMesh(std::string path)
 {
     ColliderMeshId id;
     ColliderMesh* mesh;
+
     if (colliderMeshPool.Allocate(id))
     {
         ColliderMesh newMesh;
@@ -159,6 +161,31 @@ LoadColliderMesh(std::string path)
     default:
         assert(false); // not supported
         break;
+    }
+
+    return id;
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+ColliderMeshId LoadUniqueMesh(std::vector<std::tuple<glm::vec3[], glm::vec3>> meshDefinition)
+{
+    ColliderMeshId id;
+    ColliderMesh* mesh;
+
+    if (colliderMeshPool.Allocate(id))
+    {
+        ColliderMesh newMesh;
+        meshes.push_back(std::move(newMesh));
+    }
+    
+    mesh = &meshes[id.index];
+
+    size_t size = meshDefinition.size();
+    for (size_t i = 0; i < size; i++)
+    {
+        //mesh->tris.push_back();
     }
 
     return id;

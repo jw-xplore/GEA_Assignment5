@@ -15,12 +15,12 @@ private:
 	EntityId id;
 
 public:
-	std::vector<ComponentBase*> components;
+	std::vector<ComponentBase*> components = std::vector<ComponentBase*>();
 
 	Entity(EntityId id);
 	~Entity();
 
-	virtual void Update(float dt) {}
+	void Update(float dt);
 
 	template<class T>
 	T* FindComponent()

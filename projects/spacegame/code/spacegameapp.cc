@@ -20,6 +20,9 @@
 #include "render/physics.h"
 #include <chrono>
 #include "spaceship.h"
+#include "core/ECManager.h"
+#include "gameplay/TransformCmp.h"
+#include "gameplay/RenderableCmp.h"
 
 using namespace Display;
 using namespace Render;
@@ -103,10 +106,37 @@ SpaceGameApp::Run()
     };
 
     std::vector<std::tuple<ModelId, Physics::ColliderId, glm::mat4>> asteroids;
+
+    ECManager ecManager;
     
     // Setup asteroids near
     for (int i = 0; i < 100; i++)
     {
+        // Rnd values
+        size_t resourceIndex = (size_t)(Core::FastRandom() % 6);
+
+        float span = 20.0f;
+        glm::vec3 translation = glm::vec3(
+            Core::RandomFloatNTP() * span,
+            Core::RandomFloatNTP() * span,
+            Core::RandomFloatNTP() * span
+        );
+
+        glm::vec3 rotationAxis = normalize(translation);
+        float rotation = translation.x;
+        glm::mat4 transform = glm::rotate(rotation, rotationAxis) * glm::translate(translation);
+
+        TransformCmp* transformCmp = new TransformCmp(transform);
+        transformCmp->position = translation;
+        //sstransformCmp->orientation = 
+        transformCmp->angularVelocity = glm::vec3(2, 0, 0);
+
+        // Add entity
+        ecManager.AddEntity({
+            transformCmp,
+            new RenderableCmp(resourceIndex)
+            });
+        /*
         std::tuple<ModelId, Physics::ColliderId, glm::mat4> asteroid;
         size_t resourceIndex = (size_t)(Core::FastRandom() % 6);
         std::get<0>(asteroid) = models[resourceIndex];
@@ -122,9 +152,11 @@ SpaceGameApp::Run()
         std::get<1>(asteroid) = Physics::CreateCollider(colliderMeshes[resourceIndex], transform);
         std::get<2>(asteroid) = transform;
         asteroids.push_back(asteroid);
+        */
     }
 
     // Setup asteroids far
+    /*
     for (int i = 0; i < 50; i++)
     {
         std::tuple<ModelId, Physics::ColliderId, glm::mat4> asteroid;
@@ -143,6 +175,7 @@ SpaceGameApp::Run()
         std::get<2>(asteroid) = transform;
         asteroids.push_back(asteroid);
     }
+    */
 
     // Setup skybox
     std::vector<const char*> skybox
@@ -206,10 +239,14 @@ SpaceGameApp::Run()
         Debug::DrawDebugText("FOOBAR", glm::vec3(0), {1,0,0,1});
 
         // Store all drawcalls in the render device
+        /*
         for (auto const& asteroid : asteroids)
         {
             RenderDevice::Draw(std::get<0>(asteroid), std::get<2>(asteroid));
         }
+        */
+
+        ecManager.Update(dt);
 
         RenderDevice::Draw(ship.model, ship.transform);
 

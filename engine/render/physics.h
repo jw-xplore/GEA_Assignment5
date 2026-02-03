@@ -8,10 +8,12 @@
 */
 //------------------------------------------------------------------------------
 #include <string>
+#include <vector>
+#include <tuple>
 
 namespace Physics
 {
-    
+
 struct ColliderId
 {
     uint32_t index : 22; // 4M concurrent colliders
@@ -88,6 +90,8 @@ RaycastPayload Raycast(glm::vec3 start, glm::vec3 dir, float maxDistance, uint16
 ColliderId CreateCollider(ColliderMeshId meshId, glm::mat4 const& transform, uint16_t mask = 0, void* userData = nullptr);
 
 ColliderMeshId LoadColliderMesh(std::string path);
+
+ColliderMeshId LoadUniqueMesh(std::vector<std::tuple<glm::vec3[], glm::vec3>> meshDefinition);
 
 void SetTransform(ColliderId collider, glm::mat4 const& transform);
 
