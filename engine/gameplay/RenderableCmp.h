@@ -11,6 +11,7 @@ class TransformCmp;
 class RenderableCmp : public ComponentBase
 {
 public:
+    const static int CMPID = 1;
     TransformCmp* transform;
     Render::ModelId modelId;
 
@@ -19,4 +20,5 @@ public:
 
     void Start() override;
     void Update(float dt) override;
+    virtual int GetId() override { return 1; }
 };

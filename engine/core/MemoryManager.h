@@ -210,13 +210,6 @@ public:
 
 	T* Allocate()
 	{
-		for (int i = 0; i < 4; i++)
-		{
-			std::cout << "pos: " << i << ", addr: " << handles[i] << std::endl;
-		}
-
-		std::cout << "---------------------------------\n";
-
 		if (usedCount >= elementsCount)
 			return nullptr;
 
@@ -251,5 +244,15 @@ public:
 			handles[pos] = handles[usedCount];
 			handles[usedCount] = temp;
 		}
+	}
+
+	const T& operator[](std::size_t idx) const
+	{
+		return handles[idx];
+	}
+
+	T& at(size_t idx)
+	{
+		return *handles[idx];
 	}
 };

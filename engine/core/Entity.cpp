@@ -2,6 +2,11 @@
 #include "Entity.h"
 #include "ComponentBase.h"
 
+Entity::Entity()
+{
+	components = std::vector<ComponentBase*>();
+}
+
 Entity::Entity(EntityId id): id(id)
 {
 	components = std::vector<ComponentBase*>();

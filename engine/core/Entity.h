@@ -17,8 +17,9 @@ private:
 public:
 	std::vector<ComponentBase*> components = std::vector<ComponentBase*>();
 
+	Entity();
 	Entity(EntityId id);
-	~Entity();
+	~Entity() {}
 
 	void Update(float dt);
 

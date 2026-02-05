@@ -6,13 +6,27 @@
 class Entity;
 class ComponentBase;
 
+template <typename T>
+class PoolAllocator;
+
+// Components declaration
+class TransformCmp;
+class RenderableCmp;
+
 class ECManager
 {
 private:
 	unsigned int lastId = 0;
 
 public:
-	std::vector<Entity*> entities;
+	//std::vector<Entity*> entities;
+	PoolAllocator<Entity>* entities;
+
+	// Component
+	//PoolAllocator<TransformCmp>* transformPool;
+	//PoolAllocator<RenderableCmp>* renderablePool;
+
+	//std::vector<PoolAllocator<ComponentBase>*> components;
 
 	ECManager();
 	~ECManager() {}

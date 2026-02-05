@@ -110,15 +110,19 @@ SpaceGameApp::Run()
 
     ECManager ecManager;
     
-    // Setup asteroids near
-    PoolAllocator<RenderableCmp> renderablePool = PoolAllocator<RenderableCmp>(100);
+    // Setup asteroids
+    PoolAllocator<TransformCmp> transformPool = PoolAllocator<TransformCmp>(150);
+    PoolAllocator<RenderableCmp> renderablePool = PoolAllocator<RenderableCmp>(150);
 
-    for (int i = 0; i < 50; i++)
+    for (int i = 0; i < 150; i++)
     {
         // Rnd values
         size_t resourceIndex = (size_t)(Core::FastRandom() % 6);
 
         float span = 20.0f;
+        if (i > 100)
+            span = 80.0f;
+
         glm::vec3 translation = glm::vec3(
             Core::RandomFloatNTP() * span,
             Core::RandomFloatNTP() * span,
@@ -129,7 +133,8 @@ SpaceGameApp::Run()
         float rotation = translation.x;
         glm::mat4 transform = glm::rotate(rotation, rotationAxis) * glm::translate(translation);
 
-        TransformCmp* transformCmp = new TransformCmp(transform);
+        //TransformCmp* transformCmp = new TransformCmp(transform);
+        TransformCmp* transformCmp = transformPool.Allocate();
         transformCmp->position = translation;
         //sstransformCmp->orientation =
 
@@ -152,28 +157,6 @@ SpaceGameApp::Run()
             //new RenderableCmp(resourceIndex)
             });
     }
-
-    // Setup asteroids far
-    /*
-    for (int i = 0; i < 50; i++)
-    {
-        std::tuple<ModelId, Physics::ColliderId, glm::mat4> asteroid;
-        size_t resourceIndex = (size_t)(Core::FastRandom() % 6);
-        std::get<0>(asteroid) = models[resourceIndex];
-        float span = 80.0f;
-        glm::vec3 translation = glm::vec3(
-            Core::RandomFloatNTP() * span,
-            Core::RandomFloatNTP() * span,
-            Core::RandomFloatNTP() * span
-        );
-        glm::vec3 rotationAxis = normalize(translation);
-        float rotation = translation.x;
-        glm::mat4 transform = glm::rotate(rotation, rotationAxis) * glm::translate(translation);
-        std::get<1>(asteroid) = Physics::CreateCollider(colliderMeshes[resourceIndex], transform);
-        std::get<2>(asteroid) = transform;
-        asteroids.push_back(asteroid);
-    }
-    */
 
     // Setup skybox
     std::vector<const char*> skybox

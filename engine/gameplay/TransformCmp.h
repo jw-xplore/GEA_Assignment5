@@ -4,6 +4,8 @@
 class TransformCmp : public ComponentBase
 {
 public:
+    const static int CMPID = 0;
+
     glm::vec3 position = glm::vec3(0);
     glm::quat orientation = glm::identity<glm::quat>();
     glm::vec3 camPos = glm::vec3(0, 1.0f, -2.0f);
@@ -16,4 +18,5 @@ public:
 
     void Start() override;
     void Update(float dt) override;
+    virtual int GetId() override { return 0; }
 };
