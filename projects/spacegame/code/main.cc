@@ -31,5 +31,5 @@ int main(int argc, const char** argv)
 	app.Exit();
 
 	//delete pool;
-	MemoryManager::ReportMemoryAllocation();
+	//MemoryManager::ReportMemoryAllocation();
 }

@@ -14,6 +14,7 @@ SET(files_core
 	idpool.h
 	MemoryManager.h
 	Entity.h
+	Entity.cpp
 	ComponentBase.h
 	ECManager.h
 	ECManager.cpp

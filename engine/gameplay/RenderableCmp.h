@@ -14,6 +14,7 @@ public:
     TransformCmp* transform;
     Render::ModelId modelId;
 
+    RenderableCmp() { modelId = 1; }
     RenderableCmp(Render::ModelId id);
 
     void Start() override;

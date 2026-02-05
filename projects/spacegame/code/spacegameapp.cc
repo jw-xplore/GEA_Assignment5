@@ -23,6 +23,7 @@
 #include "core/ECManager.h"
 #include "gameplay/TransformCmp.h"
 #include "gameplay/RenderableCmp.h"
+#include "core/MemoryManager.h"
 
 using namespace Display;
 using namespace Render;
@@ -110,7 +111,9 @@ SpaceGameApp::Run()
     ECManager ecManager;
     
     // Setup asteroids near
-    for (int i = 0; i < 100; i++)
+    PoolAllocator<RenderableCmp> renderablePool = PoolAllocator<RenderableCmp>(100);
+
+    for (int i = 0; i < 50; i++)
     {
         // Rnd values
         size_t resourceIndex = (size_t)(Core::FastRandom() % 6);
@@ -128,31 +131,26 @@ SpaceGameApp::Run()
 
         TransformCmp* transformCmp = new TransformCmp(transform);
         transformCmp->position = translation;
-        //sstransformCmp->orientation = 
-        transformCmp->angularVelocity = glm::vec3(2, 0, 0);
+        //sstransformCmp->orientation =
+
+        float spinRnd = 1.0f;
+        glm::vec3 spin = glm::vec3(
+            Core::RandomFloatNTP() * spinRnd,
+            Core::RandomFloatNTP() * spinRnd,
+            Core::RandomFloatNTP() * spinRnd
+        );
+
+        transformCmp->angularVelocity = spin;
+
+        RenderableCmp* renderableCmp = renderablePool.Allocate();
+        renderableCmp->modelId = resourceIndex;
 
         // Add entity
         ecManager.AddEntity({
             transformCmp,
-            new RenderableCmp(resourceIndex)
+            renderableCmp
+            //new RenderableCmp(resourceIndex)
             });
-        /*
-        std::tuple<ModelId, Physics::ColliderId, glm::mat4> asteroid;
-        size_t resourceIndex = (size_t)(Core::FastRandom() % 6);
-        std::get<0>(asteroid) = models[resourceIndex];
-        float span = 20.0f;
-        glm::vec3 translation = glm::vec3(
-            Core::RandomFloatNTP() * span,
-            Core::RandomFloatNTP() * span,
-            Core::RandomFloatNTP() * span
-        );
-        glm::vec3 rotationAxis = normalize(translation);
-        float rotation = translation.x;
-        glm::mat4 transform = glm::rotate(rotation, rotationAxis) * glm::translate(translation);
-        std::get<1>(asteroid) = Physics::CreateCollider(colliderMeshes[resourceIndex], transform);
-        std::get<2>(asteroid) = transform;
-        asteroids.push_back(asteroid);
-        */
     }
 
     // Setup asteroids far
@@ -192,6 +190,9 @@ SpaceGameApp::Run()
     
     Input::Keyboard* kbd = Input::GetDefaultKeyboard();
 
+    SpaceShip ship;
+    ship.model = LoadModel("assets/space/spaceship.glb");
+
     const int numLights = 40;
     Render::PointLightId lights[numLights];
     // Setup lights
@@ -209,9 +210,6 @@ SpaceGameApp::Run()
         );
         lights[i] = Render::LightServer::CreatePointLight(translation, color, Core::RandomFloat() * 4.0f, 1.0f + (15 + Core::RandomFloat() * 10.0f));
     }
-
-    SpaceShip ship;
-    ship.model = LoadModel("assets/space/spaceship.glb");
 
     std::clock_t c_start = std::clock();
     double dt = 0.01667f;

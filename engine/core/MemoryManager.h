@@ -103,6 +103,7 @@ public:
 	}
 };
 
+/*
 namespace MemoryManager
 {
 	unsigned int objectsCount;
@@ -119,11 +120,13 @@ namespace MemoryManager
 		std::cout << "----------------------------------------------------" << "\n";
 	}
 }
+*/
 
 //-------------------------------------------------------------------------
 // Tracking memory override
 //-------------------------------------------------------------------------
 
+/*
 std::mutex allocMtx;
 
 void* operator new(std::size_t size)
@@ -170,3 +173,83 @@ void operator delete[](void* p) throw()
 	MemoryManager::allocatedMemoryForObjects -= sizeof(p);
 	std::free(p);
 }
+*/
+
+//-------------------------------------------------------------------------
+// Memory pool allocator
+//-------------------------------------------------------------------------
+
+template <typename T>
+class PoolAllocator
+{
+public:
+	T* buffer;
+	//size_t size;
+	size_t elementSize;
+	size_t elementsCount;
+
+	size_t usedCount = 0;
+	T** handles;
+
+	PoolAllocator(size_t count)
+	{
+		usedCount = 0;
+		elementsCount = count;
+		elementSize = sizeof(T);
+
+		//size = elementsCount * elementSize;
+		buffer = new T[elementsCount];
+		handles = new T*[elementsCount];
+
+		for (size_t i = 0; i < elementsCount; i++)
+		{
+			T* element = buffer + i;
+			handles[i] = element;
+		}
+	}
+
+	T* Allocate()
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			std::cout << "pos: " << i << ", addr: " << handles[i] << std::endl;
+		}
+
+		std::cout << "---------------------------------\n";
+
+		if (usedCount >= elementsCount)
+			return nullptr;
+
+		T* pos = handles[usedCount];
+		usedCount++;
+
+		return pos;
+	}
+
+	void Remove(T* element)
+	{
+		// Find element
+		int pos = -1;
+		for (size_t i = 0; i < elementsCount; i++)
+		{
+			if (handles[i] == element)
+			{
+				pos = i;
+				break;
+			}
+		}
+
+		if (pos == -1)
+			return;
+
+		// Decrease used and switch element position
+		usedCount--;
+
+		if (pos < usedCount)
+		{
+			T* temp = handles[pos];
+			handles[pos] = handles[usedCount];
+			handles[usedCount] = temp;
+		}
+	}
+};
