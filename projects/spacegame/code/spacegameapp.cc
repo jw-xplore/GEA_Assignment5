@@ -21,9 +21,11 @@
 #include <chrono>
 #include "spaceship.h"
 #include "core/ECManager.h"
+#include "core/MemoryManager.h"
+
 #include "gameplay/TransformCmp.h"
 #include "gameplay/RenderableCmp.h"
-#include "core/MemoryManager.h"
+#include "gameplay/ShipCmp.h"
 
 using namespace Display;
 using namespace Render;
@@ -106,18 +108,21 @@ SpaceGameApp::Run()
         Physics::LoadColliderMesh("assets/space/Asteroid_6_physics.glb")
     };
 
+    LoadModel("assets/space/spaceship.glb");
+
     std::vector<std::tuple<ModelId, Physics::ColliderId, glm::mat4>> asteroids;
 
     ECManager ecManager;
     
     // Setup asteroids
-    PoolAllocator<TransformCmp> transformPool = PoolAllocator<TransformCmp>(150);
-    PoolAllocator<RenderableCmp> renderablePool = PoolAllocator<RenderableCmp>(150);
+    PoolAllocator<TransformCmp> transformPool = PoolAllocator<TransformCmp>(200);
+    PoolAllocator<RenderableCmp> renderablePool = PoolAllocator<RenderableCmp>(200);
 
     for (int i = 0; i < 150; i++)
     {
         // Rnd values
         size_t resourceIndex = (size_t)(Core::FastRandom() % 6);
+        resourceIndex = 7;
 
         float span = 20.0f;
         if (i > 100)
@@ -173,8 +178,18 @@ SpaceGameApp::Run()
     
     Input::Keyboard* kbd = Input::GetDefaultKeyboard();
 
-    SpaceShip ship;
-    ship.model = LoadModel("assets/space/spaceship.glb");
+    //SpaceShip ship;
+    //ship.model = LoadModel("assets/space/spaceship.glb");
+    RenderableCmp* shipRender = renderablePool.Allocate();
+    //shipRender->modelId = LoadModel("assets/space/spaceship.glb");
+    shipRender->modelId = 1;
+
+    Entity ship = *ecManager.AddEntity({
+        transformPool.Allocate(),
+        new ShipCmp(),
+        shipRender
+        });
+
 
     const int numLights = 40;
     Render::PointLightId lights[numLights];
@@ -213,8 +228,8 @@ SpaceGameApp::Run()
             ShaderResource::ReloadShaders();
         }
 
-        ship.Update(dt);
-        ship.CheckCollisions();
+        //ship.Update(dt);
+        //ship.CheckCollisions();
 
         // Draw some debug text
         Debug::DrawDebugText("FOOBAR", glm::vec3(0), {1,0,0,1});
@@ -229,7 +244,7 @@ SpaceGameApp::Run()
 
         ecManager.Update(dt);
 
-        RenderDevice::Draw(ship.model, ship.transform);
+        //RenderDevice::Draw(ship.model, ship.transform);
 
         // Execute the entire rendering pipeline
         RenderDevice::Render(this->window, dt);
