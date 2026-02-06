@@ -8,6 +8,8 @@
 #include "gameplay/TransformCmp.h"
 #include "gameplay/RenderableCmp.h"
 
+#include <iostream>
+
 ECManager::ECManager()
 {
 	//entities.reserve(256);
@@ -16,6 +18,9 @@ ECManager::ECManager()
 	// Setup conmponents
 	//transformPool = new PoolAllocator<TransformCmp>(256);
 	//renderablePool = new PoolAllocator<RenderableCmp>(256);
+
+	//void* add = new PoolAllocator<RenderableCmp>(1);
+	//PoolAllocator<RenderableCmp> rdr = dynamic_cast<PoolAllocator<RenderableCmp>>(&add);
 }
 
 void ECManager::Update(float dt)
@@ -45,6 +50,9 @@ Entity* ECManager::AddEntity(std::initializer_list<ComponentBase*> components)
 	size_t size = components.size();
 	for (ComponentBase*& comp : entity->components)
 	{
+		if (comp->GetId() == TransformCmp::CMPID)
+			entity->transform = dynamic_cast<TransformCmp*>(comp);
+
 		comp->owner = entity;
 		comp->Start();
 	}

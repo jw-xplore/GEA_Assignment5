@@ -10,7 +10,7 @@ RenderableCmp::RenderableCmp(Render::ModelId id)
 
 void RenderableCmp::Start()
 {
-	transform = owner->FindComponent<TransformCmp>();
+	transform = owner->transform;
 }
 
 void RenderableCmp::Update(float dt)

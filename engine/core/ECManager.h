@@ -19,14 +19,7 @@ private:
 	unsigned int lastId = 0;
 
 public:
-	//std::vector<Entity*> entities;
 	PoolAllocator<Entity>* entities;
-
-	// Component
-	//PoolAllocator<TransformCmp>* transformPool;
-	//PoolAllocator<RenderableCmp>* renderablePool;
-
-	//std::vector<PoolAllocator<ComponentBase>*> components;
 
 	ECManager();
 	~ECManager() {}

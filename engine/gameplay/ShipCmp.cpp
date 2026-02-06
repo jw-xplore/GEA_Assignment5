@@ -44,6 +44,8 @@ void ShipCmp::Start()
 
 void ShipCmp::Update(float dt)
 {
+    CheckCollisions();
+
     Mouse* mouse = Input::GetDefaultMouse();
     Keyboard* kbd = Input::GetDefaultKeyboard();
 

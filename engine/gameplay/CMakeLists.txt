@@ -15,6 +15,8 @@ SET(files_gameplay
 	ShipCmp.cpp
 	RenderableCmp.h
 	RenderableCmp.cpp
+	LigthCmp.h
+	LigthCmp.cpp
 	)
 
 SOURCE_GROUP("gameplay" FILES ${files_gameplay})

@@ -3,6 +3,7 @@
 #include <initializer_list>
 
 class ComponentBase;
+class TransformCmp;
 
 struct EntityId
 {
@@ -16,6 +17,7 @@ private:
 
 public:
 	std::vector<ComponentBase*> components = std::vector<ComponentBase*>();
+	TransformCmp* transform;
 
 	Entity();
 	Entity(EntityId id);

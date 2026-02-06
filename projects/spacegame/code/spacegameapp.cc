@@ -26,6 +26,8 @@
 #include "gameplay/TransformCmp.h"
 #include "gameplay/RenderableCmp.h"
 #include "gameplay/ShipCmp.h"
+#include "gameplay/LigthCmp.h"
+#include "gameplay/ColliderCmp.h"
 
 using namespace Display;
 using namespace Render;
@@ -117,12 +119,13 @@ SpaceGameApp::Run()
     // Setup asteroids
     PoolAllocator<TransformCmp> transformPool = PoolAllocator<TransformCmp>(200);
     PoolAllocator<RenderableCmp> renderablePool = PoolAllocator<RenderableCmp>(200);
+    PoolAllocator<ColliderCmp> colliderCmpPool = PoolAllocator<ColliderCmp>(200);
+    PoolAllocator<LigthCmp> lightPool = PoolAllocator<LigthCmp>(50);
 
     for (int i = 0; i < 150; i++)
     {
         // Rnd values
         size_t resourceIndex = (size_t)(Core::FastRandom() % 6);
-        resourceIndex = 7;
 
         float span = 20.0f;
         if (i > 100)
@@ -155,11 +158,16 @@ SpaceGameApp::Run()
         RenderableCmp* renderableCmp = renderablePool.Allocate();
         renderableCmp->modelId = resourceIndex;
 
+        ColliderCmp* colCmp = colliderCmpPool.Allocate();
+        Physics::ColliderId newCollider = Physics::CreateCollider(colliderMeshes[resourceIndex], transformCmp->transform);
+        colCmp->colId = &newCollider;
+        //colCmp->colId->index = 0;
+
         // Add entity
         ecManager.AddEntity({
             transformCmp,
-            renderableCmp
-            //new RenderableCmp(resourceIndex)
+            renderableCmp,
+            colCmp
             });
     }
 
@@ -178,11 +186,9 @@ SpaceGameApp::Run()
     
     Input::Keyboard* kbd = Input::GetDefaultKeyboard();
 
-    //SpaceShip ship;
-    //ship.model = LoadModel("assets/space/spaceship.glb");
+    // Setup ship
     RenderableCmp* shipRender = renderablePool.Allocate();
-    //shipRender->modelId = LoadModel("assets/space/spaceship.glb");
-    shipRender->modelId = 1;
+    shipRender->modelId = 7;
 
     Entity ship = *ecManager.AddEntity({
         transformPool.Allocate(),
@@ -206,7 +212,21 @@ SpaceGameApp::Run()
             Core::RandomFloat(),
             Core::RandomFloat()
         );
-        lights[i] = Render::LightServer::CreatePointLight(translation, color, Core::RandomFloat() * 4.0f, 1.0f + (15 + Core::RandomFloat() * 10.0f));
+        //lights[i] = Render::LightServer::CreatePointLight(translation, color, Core::RandomFloat() * 4.0f, 1.0f + (15 + Core::RandomFloat() * 10.0f));
+
+        // Setup entity
+        TransformCmp* transformCmp = transformPool.Allocate();
+        transformCmp->position = translation;
+
+        LigthCmp* light = lightPool.Allocate();
+        light->color = color;
+        light->intensity = Core::RandomFloat() * 4.0f;
+        light->radius = 1.0f + (15 + Core::RandomFloat() * 10.0f);
+
+        ecManager.AddEntity({
+            transformCmp,
+            light
+            });
     }
 
     std::clock_t c_start = std::clock();
@@ -228,23 +248,10 @@ SpaceGameApp::Run()
             ShaderResource::ReloadShaders();
         }
 
-        //ship.Update(dt);
-        //ship.CheckCollisions();
-
         // Draw some debug text
         Debug::DrawDebugText("FOOBAR", glm::vec3(0), {1,0,0,1});
 
-        // Store all drawcalls in the render device
-        /*
-        for (auto const& asteroid : asteroids)
-        {
-            RenderDevice::Draw(std::get<0>(asteroid), std::get<2>(asteroid));
-        }
-        */
-
         ecManager.Update(dt);
-
-        //RenderDevice::Draw(ship.model, ship.transform);
 
         // Execute the entire rendering pipeline
         RenderDevice::Render(this->window, dt);

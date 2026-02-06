@@ -18,5 +18,5 @@ public:
 
     void Start() override;
     void Update(float dt) override;
-    virtual int GetId() override { return 0; }
+    virtual int GetId() override { return CMPID; }
 };

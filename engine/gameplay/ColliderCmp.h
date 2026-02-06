@@ -13,11 +13,13 @@ namespace Physics
 class ColliderCmp : public ComponentBase
 {
 public:
-    Physics::ColliderId* colliderId;
+    const static int CMPID = 0;
+    Physics::ColliderId* colId;
     TransformCmp* transform;
 
     void Start() override;
     void Update(float dt) override;
+    virtual int GetId() override { return CMPID; }
 
     //void SetCollider(std::string meshPath);
     void SetCollider(Physics::ColliderId* id);
