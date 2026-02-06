@@ -12,30 +12,14 @@
 
 ECManager::ECManager()
 {
-	//entities.reserve(256);
 	entities = new PoolAllocator<Entity>(256);
-
-	// Setup conmponents
-	//transformPool = new PoolAllocator<TransformCmp>(256);
-	//renderablePool = new PoolAllocator<RenderableCmp>(256);
-
-	//void* add = new PoolAllocator<RenderableCmp>(1);
-	//PoolAllocator<RenderableCmp> rdr = dynamic_cast<PoolAllocator<RenderableCmp>>(&add);
 }
 
 void ECManager::Update(float dt)
 {
-	/*
-	for (Entity*& entity : entities)
-	{
-		entity->Update(dt);
-	}
-	*/
-
 	for (size_t i = 0; i < entities->usedCount; i++)
 	{
 		entities->at(i).Update(dt);
-		//entity->Update(dt);
 	}
 }
 
@@ -47,12 +31,19 @@ Entity* ECManager::AddEntity(std::initializer_list<ComponentBase*> components)
 	Entity* entity = entities->Allocate();
 	entity->components = components;
 
-	size_t size = components.size();
+	// Setup transform
 	for (ComponentBase*& comp : entity->components)
 	{
 		if (comp->GetId() == TransformCmp::CMPID)
+		{
 			entity->transform = dynamic_cast<TransformCmp*>(comp);
-
+			break;
+		}
+	}
+	
+	// Setup all components
+	for (ComponentBase*& comp : entity->components)
+	{
 		comp->owner = entity;
 		comp->Start();
 	}

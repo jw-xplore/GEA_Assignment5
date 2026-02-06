@@ -20,8 +20,4 @@ public:
     void Start() override;
     void Update(float dt) override;
     virtual int GetId() override { return CMPID; }
-
-    //void SetCollider(std::string meshPath);
-    void SetCollider(Physics::ColliderId* id);
-    void SetCollider(std::vector<glm::vec3> endPoints, glm::vec3 center);
 };

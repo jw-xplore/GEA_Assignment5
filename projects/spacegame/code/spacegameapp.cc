@@ -141,10 +141,9 @@ SpaceGameApp::Run()
         float rotation = translation.x;
         glm::mat4 transform = glm::rotate(rotation, rotationAxis) * glm::translate(translation);
 
-        //TransformCmp* transformCmp = new TransformCmp(transform);
+        // Components setup
         TransformCmp* transformCmp = transformPool.Allocate();
         transformCmp->position = translation;
-        //sstransformCmp->orientation =
 
         float spinRnd = 1.0f;
         glm::vec3 spin = glm::vec3(
@@ -157,11 +156,11 @@ SpaceGameApp::Run()
 
         RenderableCmp* renderableCmp = renderablePool.Allocate();
         renderableCmp->modelId = resourceIndex;
-
+        
         ColliderCmp* colCmp = colliderCmpPool.Allocate();
         Physics::ColliderId newCollider = Physics::CreateCollider(colliderMeshes[resourceIndex], transformCmp->transform);
-        colCmp->colId = &newCollider;
-        //colCmp->colId->index = 0;
+        colCmp->colId = new Physics::ColliderId(newCollider.index, newCollider.generation);
+        colCmp->colId->index = newCollider.index;
 
         // Add entity
         ecManager.AddEntity({
