@@ -23,31 +23,38 @@ void ECManager::Update(float dt)
 	}
 }
 
+Entity* ECManager::AddEntity()
+{
+	Entity* entity = entities->Allocate();
+	entity->SetUnassignedId(lastId);
+	lastId++;
+
+	return entity;
+}
+
 Entity* ECManager::AddEntity(std::initializer_list<ComponentBase*> components)
 {
-	EntityId id;
-	id.id = lastId;
-	//Entity* entity = new Entity(id);
 	Entity* entity = entities->Allocate();
+	entity->SetUnassignedId(lastId);
+	lastId++;
 	entity->components = components;
-
-	// Setup transform
+	
+	// Assign and start components
 	for (ComponentBase*& comp : entity->components)
 	{
+		// Setup transform
 		if (comp->GetId() == TransformCmp::CMPID)
 		{
 			entity->transform = dynamic_cast<TransformCmp*>(comp);
-			break;
 		}
+
+		comp->owner = entity;
 	}
 	
-	// Setup all components
 	for (ComponentBase*& comp : entity->components)
 	{
-		comp->owner = entity;
 		comp->Start();
 	}
 
-	//entities.push_back(entity);
 	return entity;
 }

@@ -1,7 +1,7 @@
 #include "config.h"
-#include "TransformCmp.h"
+#include "RenderableCmp.h"
 
-void TransformCmp::Update(float dt)
+void RenderableCmp::Update(float dt)
 {
 	this->position += this->linearVelocity * (float)dt;
 }

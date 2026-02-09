@@ -7,8 +7,6 @@ SET(files_gameplay
 	TransformCmp.cpp
 	CameraCmp.h
 	CameraCmp.cpp
-	RigidbodyCmp.h
-	RigidbodyCmp.cpp
 	ColliderCmp.h
 	ColliderCmp.cpp
 	ShipCmp.h

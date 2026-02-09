@@ -25,5 +25,7 @@ public:
 	~ECManager() {}
 
 	void Update(float dt);
+	Entity* AddEntity();
 	Entity* AddEntity(std::initializer_list<ComponentBase*> components);
+	Entity* FindEntity();
 };

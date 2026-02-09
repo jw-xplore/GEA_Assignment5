@@ -18,7 +18,7 @@ public:
     RenderableCmp() { modelId = 1; }
     RenderableCmp(Render::ModelId id);
 
-    void Start() override;
+    void Start() override {}
     void Update(float dt) override;
     virtual int GetId() override { return CMPID; }
 };
