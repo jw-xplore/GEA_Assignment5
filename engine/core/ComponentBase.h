@@ -12,4 +12,5 @@ public:
 	virtual void Start() {}
 	virtual void Update(float dt) {}
 	virtual int GetId() { return -1; }
+	virtual void RemovePooledInstance() {};
 };

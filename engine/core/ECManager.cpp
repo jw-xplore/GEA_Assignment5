@@ -64,3 +64,8 @@ Entity* ECManager::AddEntity(std::initializer_list<ComponentBase*> components)
 
 	return entity;
 }
+
+void ECManager::DeleteEntity(Entity* entity)
+{
+
+}

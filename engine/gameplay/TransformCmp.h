@@ -1,5 +1,6 @@
 #pragma once
 #include "../engine/core/ComponentBase.h"
+#include "core/MemoryManager.h"
 
 class TransformCmp : public ComponentBase
 {
@@ -19,4 +20,17 @@ public:
     void Start() override;
     void Update(float dt) override;
     virtual int GetId() override { return CMPID; }
+
+    // Createre and remove
+    static PoolAllocator<TransformCmp> allocator;
+
+    static ComponentBase* CreatePooledInstance()
+    {
+        if (TransformCmp::allocator.elementsCount == 0)
+            allocator = PoolAllocator<TransformCmp>(200);
+
+        return TransformCmp::allocator.Allocate();
+    }
+
+    void RemovePooledInstance() override { CreatePooledInstance(); }
 };

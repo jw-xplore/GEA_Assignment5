@@ -110,8 +110,6 @@ SpaceGameApp::Run()
         Physics::LoadColliderMesh("assets/space/Asteroid_6_physics.glb")
     };
 
-    LoadModel("assets/space/spaceship.glb");
-
     std::vector<std::tuple<ModelId, Physics::ColliderId, glm::mat4>> asteroids;
 
     ECManager ecManager;
@@ -187,7 +185,7 @@ SpaceGameApp::Run()
 
     // Setup ship
     RenderableCmp* shipRender = renderablePool.Allocate();
-    shipRender->modelId = 7;
+    shipRender->modelId = LoadModel("assets/space/spaceship.glb");
 
     Entity ship = *ecManager.AddEntity({
         transformPool.Allocate(),
