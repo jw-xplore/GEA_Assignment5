@@ -1,5 +1,6 @@
 #pragma once
 #include "../engine/core/ComponentBase.h"
+#include "core/MemoryManager.h"
 
 namespace Render
 {
@@ -21,4 +22,10 @@ public:
     void Start() override;
     void Update(float dt) override;
     virtual int GetId() override { return CMPID; }
+
+    // Createre and remove
+    static PoolAllocator<RenderableCmp> allocator;
+
+    static RenderableCmp* Allocate() { return RenderableCmp::allocator.Allocate(); }
+    void Deallocate() override { RenderableCmp::allocator.Remove(this); }
 };

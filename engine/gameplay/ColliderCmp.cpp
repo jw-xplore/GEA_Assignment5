@@ -3,6 +3,8 @@
 #include "TransformCmp.h"
 #include "render/physics.h"
 
+PoolAllocator<ColliderCmp> ColliderCmp::allocator = PoolAllocator<ColliderCmp>(200);
+
 void ColliderCmp::Start()
 {
     transform = owner->transform;

@@ -1,6 +1,8 @@
 #include "config.h"
 #include "TransformCmp.h"
 
+PoolAllocator<TransformCmp> TransformCmp::allocator = PoolAllocator<TransformCmp>(200);
+
 TransformCmp::TransformCmp(glm::mat4 transform)
 {
 	this->transform = transform;

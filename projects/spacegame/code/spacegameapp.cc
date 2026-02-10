@@ -115,11 +115,6 @@ SpaceGameApp::Run()
     ECManager ecManager;
     
     // Setup asteroids
-    PoolAllocator<TransformCmp> transformPool = PoolAllocator<TransformCmp>(200);
-    PoolAllocator<RenderableCmp> renderablePool = PoolAllocator<RenderableCmp>(200);
-    PoolAllocator<ColliderCmp> colliderCmpPool = PoolAllocator<ColliderCmp>(200);
-    PoolAllocator<LigthCmp> lightPool = PoolAllocator<LigthCmp>(50);
-
     for (int i = 0; i < 150; i++)
     {
         // Rnd values
@@ -140,7 +135,7 @@ SpaceGameApp::Run()
         glm::mat4 transform = glm::rotate(rotation, rotationAxis) * glm::translate(translation);
 
         // Components setup
-        TransformCmp* transformCmp = transformPool.Allocate();
+        TransformCmp* transformCmp = TransformCmp::Allocate();
         transformCmp->position = translation;
 
         float spinRnd = 1.0f;
@@ -152,10 +147,10 @@ SpaceGameApp::Run()
 
         transformCmp->angularVelocity = spin;
 
-        RenderableCmp* renderableCmp = renderablePool.Allocate();
+        RenderableCmp* renderableCmp = RenderableCmp::Allocate();
         renderableCmp->modelId = resourceIndex;
         
-        ColliderCmp* colCmp = colliderCmpPool.Allocate();
+        ColliderCmp* colCmp = ColliderCmp::Allocate();
         Physics::ColliderId newCollider = Physics::CreateCollider(colliderMeshes[resourceIndex], transformCmp->transform);
         colCmp->colId = new Physics::ColliderId(newCollider.index, newCollider.generation);
         colCmp->colId->index = newCollider.index;
@@ -184,18 +179,19 @@ SpaceGameApp::Run()
     Input::Keyboard* kbd = Input::GetDefaultKeyboard();
 
     // Setup ship
-    RenderableCmp* shipRender = renderablePool.Allocate();
+    RenderableCmp* shipRender = RenderableCmp::Allocate();
     shipRender->modelId = LoadModel("assets/space/spaceship.glb");
 
     Entity ship = *ecManager.AddEntity({
-        transformPool.Allocate(),
+        TransformCmp::Allocate(),
         new ShipCmp(),
         shipRender
         });
 
 
     const int numLights = 40;
-    Render::PointLightId lights[numLights];
+    Entity* lightEntity;
+    std::vector<Entity*> lightEntities;
     // Setup lights
     for (int i = 0; i < numLights; i++)
     {
@@ -212,18 +208,20 @@ SpaceGameApp::Run()
         //lights[i] = Render::LightServer::CreatePointLight(translation, color, Core::RandomFloat() * 4.0f, 1.0f + (15 + Core::RandomFloat() * 10.0f));
 
         // Setup entity
-        TransformCmp* transformCmp = transformPool.Allocate();
+        TransformCmp* transformCmp = TransformCmp::Allocate();
         transformCmp->position = translation;
 
-        LigthCmp* light = lightPool.Allocate();
+        LigthCmp* light = LigthCmp::Allocate();
         light->color = color;
         light->intensity = Core::RandomFloat() * 4.0f;
         light->radius = 1.0f + (15 + Core::RandomFloat() * 10.0f);
 
-        ecManager.AddEntity({
+        lightEntity = ecManager.AddEntity({
             transformCmp,
             light
             });
+
+        lightEntities.push_back(lightEntity);
     }
 
     std::clock_t c_start = std::clock();

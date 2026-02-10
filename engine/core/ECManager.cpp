@@ -65,7 +65,27 @@ Entity* ECManager::AddEntity(std::initializer_list<ComponentBase*> components)
 	return entity;
 }
 
-void ECManager::DeleteEntity(Entity* entity)
+void ECManager::RemoveEntity(Entity* entity)
 {
+	entities->Remove(entity);
 
+	for (ComponentBase*& comp : entity->components)
+	{
+		comp->Deallocate();
+	}
+}
+
+Entity* ECManager::FindById(EntityId id)
+{
+	for (size_t i = 0; i < entities->usedCount; i++)
+	{
+		Entity* entity = &entities->at(i);
+
+		if (entity->GetId().id == id.id)
+		{
+			return entity;
+		}
+	}
+
+	return nullptr;
 }

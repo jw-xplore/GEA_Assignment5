@@ -9,9 +9,7 @@ class ComponentBase;
 template <typename T>
 class PoolAllocator;
 
-// Components declaration
-class TransformCmp;
-class RenderableCmp;
+struct EntityId;
 
 class ECManager
 {
@@ -27,5 +25,6 @@ public:
 	void Update(float dt);
 	Entity* AddEntity();
 	Entity* AddEntity(std::initializer_list<ComponentBase*> components);
-	void DeleteEntity(Entity* entity);
+	void RemoveEntity(Entity* entity);
+	Entity* FindById(EntityId id);
 };

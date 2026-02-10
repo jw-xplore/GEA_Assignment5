@@ -3,6 +3,8 @@
 #include "../render/renderdevice.h"
 #include "TransformCmp.h"
 
+PoolAllocator<RenderableCmp> RenderableCmp::allocator = PoolAllocator<RenderableCmp>(200);
+
 RenderableCmp::RenderableCmp(Render::ModelId id)
 {
 	modelId = id;

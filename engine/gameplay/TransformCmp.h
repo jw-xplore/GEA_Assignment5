@@ -24,13 +24,6 @@ public:
     // Createre and remove
     static PoolAllocator<TransformCmp> allocator;
 
-    static ComponentBase* CreatePooledInstance()
-    {
-        if (TransformCmp::allocator.elementsCount == 0)
-            allocator = PoolAllocator<TransformCmp>(200);
-
-        return TransformCmp::allocator.Allocate();
-    }
-
-    void RemovePooledInstance() override { CreatePooledInstance(); }
+    static TransformCmp* Allocate() { return TransformCmp::allocator.Allocate(); }
+    void Deallocate() override { TransformCmp::allocator.Remove(this); }
 };

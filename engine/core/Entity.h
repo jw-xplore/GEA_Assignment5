@@ -26,6 +26,7 @@ public:
 	void Update(float dt);
 
 	void SetUnassignedId(unsigned int id);
+	EntityId GetId() { return id; }
 	void AddComponent(ComponentBase* component);
 	void AddComponents(std::initializer_list<ComponentBase*> components);
 	void RemoveComponent(unsigned int componentId);

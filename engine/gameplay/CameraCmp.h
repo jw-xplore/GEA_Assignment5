@@ -1,5 +1,6 @@
 #pragma once
 #include "../engine/core/ComponentBase.h"
+#include "core/MemoryManager.h"
 
 namespace Render
 {
@@ -16,7 +17,6 @@ public:
 	TransformCmp* transform;
 
 	glm::vec3 camPos;
-	//glm::vec3 desiredCamPos;
 
 	void Start() override {}
 	void Update(float dt) override {}
