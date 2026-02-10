@@ -7,6 +7,7 @@ namespace Render
 }
 
 class TransformCmp;
+class CameraCmp;
 
 class ShipCmp : public ComponentBase
 {
@@ -16,6 +17,7 @@ public:
 
     glm::vec3 camPos = glm::vec3(0, 1.0f, -2.0f);
     TransformCmp* transform;
+    CameraCmp* camera;
 
     const float normalSpeed = 1.0f;
     const float boostSpeed = normalSpeed * 2.0f;

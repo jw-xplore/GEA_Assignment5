@@ -13,6 +13,6 @@ void CameraCmp::UpdateTransform(float dt, glm::vec3 pos, float smoothFactor)
 {
     using namespace glm;
 
-    //vec3 camPos = mix(transform->position, desiredCamPos, dt * smoothFactor);
-    //camera->view = lookAt(camPos, camPos + vec3(transform->transform[2]), vec3(transform->transform[1]));
+    camPos = mix(camPos, pos, dt * smoothFactor);
+    camera->view = lookAt(camPos, camPos + vec3(transform->transform[2]), vec3(transform->transform[1]));
 }

@@ -13,7 +13,7 @@ namespace Physics
 class ColliderCmp : public ComponentBase
 {
 public:
-    const static int CMPID = 0;
+    const static int CMPID = 2;
     Physics::ColliderId* colId;
     TransformCmp* transform;
 

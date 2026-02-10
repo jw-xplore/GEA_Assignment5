@@ -11,9 +11,11 @@ class TransformCmp;
 class CameraCmp : public ComponentBase
 {
 public:
+	const static int CMPID = 5;
 	Render::Camera* camera;
 	TransformCmp* transform;
 
+	glm::vec3 camPos;
 	//glm::vec3 desiredCamPos;
 
 	void Start() override {}
@@ -21,4 +23,5 @@ public:
 
 	void Init(Render::Camera* camera, TransformCmp* transform);
 	void UpdateTransform(float dt, glm::vec3 transform, float smoothFactor);
+	virtual int GetId() override { return CMPID; }
 };

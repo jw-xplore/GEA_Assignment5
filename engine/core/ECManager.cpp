@@ -39,9 +39,13 @@ Entity* ECManager::AddEntity(std::initializer_list<ComponentBase*> components)
 	lastId++;
 	entity->components = components;
 	
+	size_t compSize = entity->components.size();
+
 	// Assign and start components
-	for (ComponentBase*& comp : entity->components)
+	for (size_t i = 0; i < compSize; i++)
 	{
+		ComponentBase*& comp = entity->components[i];
+
 		// Setup transform
 		if (comp->GetId() == TransformCmp::CMPID)
 		{
@@ -51,8 +55,10 @@ Entity* ECManager::AddEntity(std::initializer_list<ComponentBase*> components)
 		comp->owner = entity;
 	}
 	
-	for (ComponentBase*& comp : entity->components)
+	for (size_t i = 0; i < compSize; i++)
 	{
+		ComponentBase*& comp = entity->components[i];
+
 		comp->Start();
 	}
 

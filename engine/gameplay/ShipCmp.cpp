@@ -5,7 +5,9 @@
 #include "render/physics.h"
 #include "render/debugrender.h"
 #include "render/particlesystem.h"
+
 #include "TransformCmp.h"
+#include "CameraCmp.h" 
 
 using namespace Input;
 using namespace glm;
@@ -40,6 +42,10 @@ void ShipCmp::Start()
 
     ParticleSystem::Instance()->AddEmitter(this->particleEmitterLeft);
     ParticleSystem::Instance()->AddEmitter(this->particleEmitterRight);
+
+    camera = new CameraCmp();
+    camera->Init(CameraManager::GetCamera(CAMERA_MAIN), transform);
+    this->owner->AddComponent(camera);
 }
 
 void ShipCmp::Update(float dt)
@@ -49,7 +55,7 @@ void ShipCmp::Update(float dt)
     Mouse* mouse = Input::GetDefaultMouse();
     Keyboard* kbd = Input::GetDefaultKeyboard();
 
-    Camera* cam = CameraManager::GetCamera(CAMERA_MAIN);
+    //Camera* cam = CameraManager::GetCamera(CAMERA_MAIN);
 
     if (kbd->held[Key::W])
     {
@@ -87,8 +93,9 @@ void ShipCmp::Update(float dt)
 
     // update camera view transform
     vec3 desiredCamPos = transform->position + vec3(transform->transform * vec4(0, camOffsetY, -4.0f, 0));
-    this->camPos = mix(this->camPos, desiredCamPos, dt * cameraSmoothFactor);
-    cam->view = lookAt(this->camPos, this->camPos + vec3(transform->transform[2]), vec3(transform->transform[1]));
+    camera->UpdateTransform(dt, desiredCamPos, cameraSmoothFactor);
+    //this->camPos = mix(this->camPos, desiredCamPos, dt * cameraSmoothFactor);
+    //cam->view = lookAt(this->camPos, this->camPos + vec3(transform->transform[2]), vec3(transform->transform[1]));
 
     const float thrusterPosOffset = 0.365f;
     this->particleEmitterLeft->data.origin = glm::vec4(vec3(transform->position + (vec3(transform->transform[0]) * -thrusterPosOffset)) + (vec3(transform->transform[2]) * emitterOffset), 1);
