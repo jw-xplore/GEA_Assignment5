@@ -19,6 +19,8 @@ SET(files_core
 	ECManager.h
 	ECManager.cpp
 	EComponents.h
+	InputSystem.h
+	InputSystem.cpp
 	)
 SOURCE_GROUP("core" FILES ${files_core})
 	

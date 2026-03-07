@@ -22,6 +22,7 @@
 #include "spaceship.h"
 #include "core/ECManager.h"
 #include "core/MemoryManager.h"
+#include "core/InputSystem.h"
 
 #include "gameplay/TransformCmp.h"
 #include "gameplay/RenderableCmp.h"
@@ -91,6 +92,8 @@ SpaceGameApp::Run()
     glm::mat4 projection = glm::perspective(glm::radians(90.0f), float(w) / float(h), 0.01f, 1000.f);
     Camera* cam = CameraManager::GetCamera(CAMERA_MAIN);
     cam->projection = projection;
+
+    InputSystem* inputSystem = InputSystem::GetInstance();
 
     // load all resources
     ModelId models[6] = {

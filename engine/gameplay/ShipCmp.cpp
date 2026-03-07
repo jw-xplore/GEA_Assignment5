@@ -5,6 +5,7 @@
 #include "render/physics.h"
 #include "render/debugrender.h"
 #include "render/particlesystem.h"
+#include "core/InputSystem.h"
 
 #include "TransformCmp.h"
 #include "CameraCmp.h" 
@@ -46,20 +47,18 @@ void ShipCmp::Start()
     camera = new CameraCmp();
     camera->Init(CameraManager::GetCamera(CAMERA_MAIN), transform);
     this->owner->AddComponent(camera);
+
+    // Setup input
+    inputSystem = InputSystem::GetInstance();
 }
 
 void ShipCmp::Update(float dt)
 {
     CheckCollisions();
 
-    Mouse* mouse = Input::GetDefaultMouse();
-    Keyboard* kbd = Input::GetDefaultKeyboard();
-
-    //Camera* cam = CameraManager::GetCamera(CAMERA_MAIN);
-
-    if (kbd->held[Key::W])
+    if (inputSystem->actions["Forward"]->IsPressed())
     {
-        if (kbd->held[Key::Shift])
+        if (inputSystem->actions["Boost"]->IsPressed())
             this->currentSpeed = mix(this->currentSpeed, this->boostSpeed, std::min(1.0f, dt * 30.0f));
         else
             this->currentSpeed = mix(this->currentSpeed, this->normalSpeed, std::min(1.0f, dt * 90.0f));
@@ -68,14 +67,15 @@ void ShipCmp::Update(float dt)
     {
         this->currentSpeed = 0;
     }
+
     vec3 desiredVelocity = vec3(0, 0, this->currentSpeed);
     desiredVelocity = transform->transform * vec4(desiredVelocity, 0.0f);
 
     transform->linearVelocity = mix(transform->linearVelocity, desiredVelocity, dt * accelerationFactor);
 
-    float rotX = kbd->held[Key::Left] ? 1.0f : kbd->held[Key::Right] ? -1.0f : 0.0f;
-    float rotY = kbd->held[Key::Up] ? -1.0f : kbd->held[Key::Down] ? 1.0f : 0.0f;
-    float rotZ = kbd->held[Key::A] ? -1.0f : kbd->held[Key::D] ? 1.0f : 0.0f;
+    float rotX = inputSystem->actions["Yaw"]->InputAxis();
+    float rotY = inputSystem->actions["Pitch"]->InputAxis();
+    float rotZ = inputSystem->actions["Roll"]->InputAxis();
 
     transform->position += transform->linearVelocity * dt * 10.0f;
 
