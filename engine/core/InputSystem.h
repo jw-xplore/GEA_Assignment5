@@ -54,6 +54,7 @@ class ButtonInputEvent : public InputEvent
 public:
 	InputHandlingButton input;
 
+	ButtonInputEvent() {}
 	ButtonInputEvent(EInputDevice device, int button);
 
 	bool IsPressed() override;
@@ -65,6 +66,7 @@ class AxisInputEvent : public InputEvent
 public:
 	InputHandlingAxis input;
 
+	AxisInputEvent() {}
 	AxisInputEvent(EInputDevice device, int positive, int negative);
 
 	bool IsPressed() override;

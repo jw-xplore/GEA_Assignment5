@@ -99,7 +99,8 @@ InputSystem* InputSystem::instance = new InputSystem();
 
 InputSystem::InputSystem()
 {
-	SetDefaultInputMapping();
+	//SetDefaultInputMapping();
+	LoadInputMapping();
 }
 
 InputSystem::~InputSystem()
@@ -137,6 +138,33 @@ void InputSystem::LoadInputMapping()
 
 	//tartingPopulation = jsonRes["worldData"]["population"];
 	//ironOreAmount = jsonRes["worldData"]["ironOreAmount"];
+
+	actions.clear();
+
+	nlohmann::json inputMapping = jsonRes["inputMapping"];
+	for (auto& action : inputMapping.items())
+	{
+		std::string name = action.value()["name"];
+
+		InputEvent* event;
+
+		// Setup handling
+		EInputHandlingType type = action.value()["handlingType"];
+		EInputDevice device = action.value()["device"];
+		nlohmann::json handling = action.value()["handling"];
+
+		switch (type)
+		{
+		case EInputHandlingType::Button: event = new ButtonInputEvent(device, handling["button"]); break;
+		case EInputHandlingType::Axis: event = new AxisInputEvent(device, handling["positive"], handling["negative"]); break;
+
+		// End
+		}
+
+		// Fill data
+		event->inputData.name = name;
+		actions[name] = event;
+	}
 
 }
 
