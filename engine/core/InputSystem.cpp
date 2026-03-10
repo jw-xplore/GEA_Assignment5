@@ -228,18 +228,15 @@ void InputSystem::SaveInputMapping()
 
 void InputSystem::InputMappingUI()
 {
-	int keysCount = (int)Input::Key::NumKeyCodes;
-	int mouseBtnsCount = (int)Input::Mouse::NumMouseButtons;
-
-	/*
-	ButtonInputEvent* forwardEvent = dynamic_cast<ButtonInputEvent*>(actions["Forward"]);
-	int* forwardButton = &forwardEvent->input.button;
-	ImGui::Combo("Forward", forwardButton, Input::Key::CodeNames, (int)Input::Key::NumKeyCodes);
-	*/
-
 	// Keys
 	for (auto& action : actions)
 	{
+		// Device option
+		std::string actionDeviceName = action.first + " DEVICE";
+		int* device = (int*)(&action.second->inputData.device);
+		ImGui::Combo(actionDeviceName.c_str(), device, DeviceNames, EInputDevice::EInputDeviceCount);
+
+		// Display proper handling type
 		EInputHandlingType handlingType = action.second->inputData.handlingType;
 
 		switch (handlingType)
