@@ -99,4 +99,7 @@ public:
 	void SetDefaultInputMapping();
 	void LoadInputMapping();
 	void SaveInputMapping();
+
+	void InputMappingUI();
+	const char* const* InputMappingUIList(EInputDevice device, int& size);
 };

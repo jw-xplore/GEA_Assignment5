@@ -5,9 +5,12 @@
 #include "render/input/mouse.h"
 #include "render/input/gamepad.h"
 #include "render/input/key.h"
+#include "render/input/mouse.h"
 #include "render/json.hpp"
 #include <fstream>
 #include <exception>
+#include <string>
+#include "imgui.h"
 
 //----------------------------------------------
 // Input types
@@ -99,7 +102,6 @@ InputSystem* InputSystem::instance = new InputSystem();
 
 InputSystem::InputSystem()
 {
-	//SetDefaultInputMapping();
 	LoadInputMapping();
 }
 
@@ -110,6 +112,8 @@ InputSystem::~InputSystem()
 
 void InputSystem::SetDefaultInputMapping()
 {
+	actions.clear();
+
 	actions = {
 		{ "Forward", new ButtonInputEvent(EInputDevice::DeviceKeyboard, Input::Key::W) },
 		{ "Boost", new ButtonInputEvent(EInputDevice::DeviceKeyboard, Input::Key::Shift) },
@@ -118,8 +122,6 @@ void InputSystem::SetDefaultInputMapping()
 		{ "Pitch", new AxisInputEvent(EInputDevice::DeviceKeyboard, Input::Key::Up, Input::Key::Down) },
 		{ "Shoot", new ButtonInputEvent(EInputDevice::DeviceKeyboard, Input::Key::Space) }
 	};
-
-	SaveInputMapping();
 }
 
 void InputSystem::LoadInputMapping()
@@ -130,6 +132,8 @@ void InputSystem::LoadInputMapping()
 	{
 		// Fill with default setting
 		SetDefaultInputMapping();
+		SaveInputMapping();
+		return;
 	}
 
 	// Parse data
@@ -220,4 +224,89 @@ void InputSystem::SaveInputMapping()
 	file.open(filePath);
 	file << std::setw(4) << j;
 	file.close();
+}
+
+void InputSystem::InputMappingUI()
+{
+	int keysCount = (int)Input::Key::NumKeyCodes;
+	int mouseBtnsCount = (int)Input::Mouse::NumMouseButtons;
+
+	/*
+	ButtonInputEvent* forwardEvent = dynamic_cast<ButtonInputEvent*>(actions["Forward"]);
+	int* forwardButton = &forwardEvent->input.button;
+	ImGui::Combo("Forward", forwardButton, Input::Key::CodeNames, (int)Input::Key::NumKeyCodes);
+	*/
+
+	// Keys
+	for (auto& action : actions)
+	{
+		EInputHandlingType handlingType = action.second->inputData.handlingType;
+
+		switch (handlingType)
+		{
+		case EInputHandlingType::Button:
+		{
+			ButtonInputEvent * event = dynamic_cast<ButtonInputEvent*>(action.second);
+			int* button = &event->input.button;
+
+			const char* name = action.first.c_str();
+			int size = 0;
+			const char* const* list = InputMappingUIList(event->inputData.device, size);
+
+			ImGui::Combo(name, button, list, size);
+			break;
+		}
+
+		case EInputHandlingType::Axis:
+		{
+			AxisInputEvent* event = dynamic_cast<AxisInputEvent*>(action.second);
+
+			int size = 0;
+			const char* const* list = InputMappingUIList(event->inputData.device, size);
+
+			// Positive
+			int* pos = &event->input.positive;
+			std::string name = action.first + " POSITIVE";
+			ImGui::Combo(name.c_str(), pos, list, size);
+
+			// Negative
+			int* neg = &event->input.negative;
+			name = action.first + " NEGATIVE";
+			ImGui::Combo(name.c_str(), neg, list, size);
+			break;
+		}
+
+		// End
+		}
+	}
+
+	// Save
+	if (ImGui::Button("Save changes"))
+	{
+		SaveInputMapping();
+	}
+
+	// Load
+	if (ImGui::Button("Load mapping"))
+	{
+		LoadInputMapping();
+	}
+
+	// Default
+	if (ImGui::Button("Default mapping"))
+	{
+		SetDefaultInputMapping();
+	}
+}
+
+const char* const* InputSystem::InputMappingUIList(EInputDevice device, int& size)
+{
+	switch (device)
+	{
+	case EInputDevice::DeviceKeyboard: size = Input::Key::NumKeyCodes; return Input::Key::CodeNames;
+	case EInputDevice::DeviceMouse: size = Input::Mouse::NumMouseButtons; return Input::Mouse::mouseButtonNames;
+		// Gamepad
+	}
+
+	return nullptr;
 }

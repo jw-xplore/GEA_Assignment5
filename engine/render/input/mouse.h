@@ -22,6 +22,11 @@ struct Mouse
         InvalidMouseButton,
     };
 
+    constexpr static const char* const mouseButtonNames[Button::NumMouseButtons] =
+    {
+        "LeftButton","RightButton","MiddleButton"
+    };
+
     /// contains all buttons that was pressed this frame. This is reset every frame by InputServer
     bool pressed[Button::NumMouseButtons];
 

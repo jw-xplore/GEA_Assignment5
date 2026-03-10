@@ -293,6 +293,11 @@ SpaceGameApp::RenderUI()
         if (ImGui::InputInt("LightSphereId", (int*)&lightSphereId))
             Core::CVarWriteInt(r_draw_light_sphere_id, lightSphereId);
         
+
+        // Input mapping
+        InputSystem* is = InputSystem::GetInstance();
+        is->InputMappingUI();
+
         ImGui::End();
 
         Debug::DispatchDebugTextDrawing();
