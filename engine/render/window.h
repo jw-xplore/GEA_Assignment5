@@ -82,6 +82,9 @@ private:
 	static void StaticCharCallback(GLFWwindow* window, unsigned int key);
 	static void StaticDropCallback(GLFWwindow* window, int files, const char** args);
 
+	// Gamepad
+	static void StaticJoystickInputCallback(int jid, int event);
+
 	/// resize update
 	void Resize();
 	/// title rename update

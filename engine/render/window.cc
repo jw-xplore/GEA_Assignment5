@@ -8,6 +8,7 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_glfw.h"
 #include "render/input/inputserver.h"
+#include <iostream>
 
 namespace Display
 {
@@ -202,6 +203,13 @@ Window::StaticDropCallback(GLFWwindow* window, int files, const char** args)
 	// empty for now
 }
 
+//------------------------------------------------------------------------------
+/**
+*/
+void Window::StaticJoystickInputCallback(int jid, int event)
+{
+	std::cout << "Gamepad " << jid << " - input: " << event << "\n";
+}
 
 //------------------------------------------------------------------------------
 /**
@@ -305,6 +313,16 @@ Window::Open()
 	glfwSetCharCallback(window, Window::StaticCharCallback);
 	glfwSetDropCallback(window, Window::StaticDropCallback);
 
+	// Gamepad setup
+	if (glfwJoystickPresent(GLFW_JOYSTICK_1))
+	{
+		std::cout << "Setup Gamepad 1 \n";
+		glfwSetJoystickCallback(Window::StaticJoystickInputCallback);
+	}
+	else
+	{
+		std::cout << "No Gamepad detected! \n";
+	}
 
 	// setup imgui implementation
 	ImGui::CreateContext();

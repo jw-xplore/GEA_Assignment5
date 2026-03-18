@@ -5,7 +5,6 @@
 #include "render/input/mouse.h"
 #include "render/input/gamepad.h"
 #include "render/input/key.h"
-#include "render/input/mouse.h"
 #include "render/json.hpp"
 #include <fstream>
 #include <exception>
@@ -29,7 +28,15 @@ bool ButtonInputEvent::IsPressed()
 	{
 	case EInputDevice::DeviceKeyboard: return Input::GetDefaultKeyboard()->held[input.button];
 	case EInputDevice::DeviceMouse: return Input::GetDefaultMouse()->held[input.button];
-	//case EInputDevice::DeviceGamepad: Input::GetGamepad() ... - NOTE: Not implemented in engine
+	case EInputDevice::DeviceGamepadButtons: return Input::GetGamepad(0)->buttonHeld[input.button];
+
+	// Gamepad axes
+	case EInputDevice::DeviceGamepadAxes:
+	{
+		return Input::GetGamepad(0)->axesValues[input.button] > 0;
+	}
+
+	//End
 	}
 
 	return false;
@@ -41,6 +48,8 @@ float ButtonInputEvent::InputAxis()
 	{
 	case EInputDevice::DeviceKeyboard: return Input::GetDefaultKeyboard()->held[input.button];
 	case EInputDevice::DeviceMouse: return Input::GetDefaultMouse()->held[input.button];
+	case EInputDevice::DeviceGamepadButtons: return Input::GetGamepad(0)->buttonHeld[input.button];
+	case EInputDevice::DeviceGamepadAxes: return Input::GetGamepad(0)->axesValues[input.button];
 	}
 
 	return 0;
@@ -61,6 +70,21 @@ bool AxisInputEvent::IsPressed()
 	{
 	case DeviceKeyboard: return Input::GetDefaultKeyboard()->held[input.positive] || Input::GetDefaultKeyboard()->held[input.negative];
 	case DeviceMouse: return Input::GetDefaultMouse()->held[input.positive] || Input::GetDefaultMouse()->held[input.negative];
+	
+	// Gamepad buttons
+	case EInputDevice::DeviceGamepadButtons:
+	{
+		return Input::GetGamepad(0)->buttonHeld[input.positive] || Input::GetGamepad(0)->buttonHeld[input.negative];
+	}
+
+	// Gamepad axes
+	case EInputDevice::DeviceGamepadAxes:
+	{
+		// Use only positive input
+		return Input::GetGamepad(0)->axesValues[input.positive] != 0;
+	}
+
+	// End
 	}
 
 	return true;
@@ -70,6 +94,7 @@ float AxisInputEvent::InputAxis()
 {
 	switch (inputData.device)
 	{
+
 	case DeviceKeyboard:
 	{
 		if (Input::GetDefaultKeyboard()->held[input.positive])
@@ -79,6 +104,7 @@ float AxisInputEvent::InputAxis()
 		
 		return 0;
 	}
+
 	case DeviceMouse:
 	{
 		if (Input::GetDefaultMouse()->held[input.positive])
@@ -88,7 +114,24 @@ float AxisInputEvent::InputAxis()
 
 		return 0;
 	}
-	// end
+
+	case DeviceGamepadButtons:
+	{
+		if (Input::GetGamepad(0)->buttonHeld[input.positive])
+			return 1;
+		else if (Input::GetGamepad(0)->buttonHeld[input.negative])
+			return -1;
+
+		return 0;
+	}
+
+	case DeviceGamepadAxes:
+	{
+		// Use only positive input as axis
+		return Input::GetGamepad(0)->axesValues[input.positive];
+	}
+
+	// End
 	}
 
 	return 0;
@@ -161,7 +204,6 @@ void InputSystem::LoadInputMapping()
 		{
 		case EInputHandlingType::Button: event = new ButtonInputEvent(device, handling["button"]); break;
 		case EInputHandlingType::Axis: event = new AxisInputEvent(device, handling["positive"], handling["negative"]); break;
-
 		// End
 		}
 
@@ -302,7 +344,8 @@ const char* const* InputSystem::InputMappingUIList(EInputDevice device, int& siz
 	{
 	case EInputDevice::DeviceKeyboard: size = Input::Key::NumKeyCodes; return Input::Key::CodeNames;
 	case EInputDevice::DeviceMouse: size = Input::Mouse::NumMouseButtons; return Input::Mouse::mouseButtonNames;
-		// Gamepad
+	case EInputDevice::DeviceGamepadButtons: size = Input::Gamepad::GamepadButtonCount; return Input::Gamepad::gamepadButtonNames;
+	case EInputDevice::DeviceGamepadAxes: size = Input::Gamepad::GamepadAxesCount; return Input::Gamepad::gamepadAxesNames;
 	}
 
 	return nullptr;

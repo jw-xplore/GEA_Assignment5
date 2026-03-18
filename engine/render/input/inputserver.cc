@@ -5,6 +5,7 @@
 #include "config.h"
 #include "inputserver.h"
 #include "GLFW/glfw3.h"
+#include <iostream>
 
 namespace Input
 {
@@ -26,6 +27,12 @@ InputHandler::Create()
 {
 	if (hid == nullptr)
 		hid = new HIDState();
+
+	// Register gamepads
+	if (glfwJoystickPresent(GLFW_JOYSTICK_1))
+		ConnectJoystick(GLFW_JOYSTICK_1);
+
+	glfwSetJoystickCallback(JoystickCallback);
 }
 
 //------------------------------------------------------------------------------
@@ -54,6 +61,12 @@ InputHandler::BeginFrame()
 
 	hid->mouse.delta = glm::vec2(0);
 	hid->mouse.previousPosition = hid->mouse.position;
+
+	// Gamepads
+	for (Gamepad*& gamepad : hid->gamepads)
+	{
+		gamepad->HandleInput();
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -134,6 +147,50 @@ InputHandler::HandleMouseMoveEvent(double x, double y)
 	hid->mouse.delta = hid->mouse.position - hid->mouse.previousPosition;
 }
 
+void InputHandler::JoystickCallback(int jid, int event)
+{
+	std::cout << "Gamepad " << jid << " - event: " << event << "\n";
+
+	switch (event)
+	{
+	case GLFW_CONNECTED: ConnectJoystick(jid); break;
+	case GLFW_DISCONNECTED: DisconnectJoystick(jid); break;
+	}
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void InputHandler::ConnectJoystick(int jid)
+{
+	Gamepad* gamepad = new Gamepad();
+	gamepad->id = jid;
+
+	hid->gamepads.push_back(gamepad);
+}
+
+//------------------------------------------------------------------------------
+/**
+*/
+void InputHandler::DisconnectJoystick(int jid)
+{
+	Gamepad* toErase = nullptr;
+
+	for (Gamepad*& gamepad : hid->gamepads)
+	{
+		if (gamepad->id == jid)
+		{
+			toErase = gamepad;
+			break;
+		}
+	}
+
+	if (!toErase)
+		return;
+
+	hid->gamepads.erase(std::find(hid->gamepads.begin(), hid->gamepads.end(), toErase));
+}
+
 //------------------------------------------------------------------------------
 /**
 */
@@ -161,7 +218,7 @@ Gamepad*
 GetGamepad(int id)
 {
 	assert(hid != nullptr);
-	assert(id > 0 && id < hid->gamepads.size());
+	assert(id < hid->gamepads.size());
 	return hid->gamepads[id];
 }
 

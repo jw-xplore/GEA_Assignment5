@@ -56,12 +56,14 @@ void ShipCmp::Update(float dt)
 {
     CheckCollisions();
 
-    if (inputSystem->actions["Forward"]->IsPressed())
+    float forwardInput = inputSystem->actions["Forward"]->InputAxis();
+
+    if (forwardInput)
     {
         if (inputSystem->actions["Boost"]->IsPressed())
-            this->currentSpeed = mix(this->currentSpeed, this->boostSpeed, std::min(1.0f, dt * 30.0f));
+            this->currentSpeed = mix(this->currentSpeed, this->boostSpeed * forwardInput, std::min(1.0f, dt * 30.0f));
         else
-            this->currentSpeed = mix(this->currentSpeed, this->normalSpeed, std::min(1.0f, dt * 90.0f));
+            this->currentSpeed = mix(this->currentSpeed, this->normalSpeed * forwardInput, std::min(1.0f, dt * 90.0f));
     }
     else
     {
